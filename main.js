@@ -44,26 +44,28 @@ Animation.prototype.isDone = function () {
 }
 
 
-function Human(game, zomb, cop) {
+function Human(game, zomb, cop, human) {
     this.animationHuman = new Animation(ASSET_MANAGER.getAsset("./img/h.png"), 32, 32, 32, 1, 1, true, 1);
 	this.animationZomb = new Animation(ASSET_MANAGER.getAsset("./img/z.png"), 32, 32, 32, 1, 1, true, 1);
 	this.animationCop = new Animation(ASSET_MANAGER.getAsset("./img/c.png"), 32, 32, 32, 1, 1, true, 1);
 	this.isZombie = zomb;
 	this.isCop = cop;
+	this.isHuman = human
+	this.isDead = false;
     this.speed = 10;
     this.ctx = game.ctx;
-	var road = Math.floor(Math.random() * 12);
+	this.road = Math.floor(Math.random() * 12);
 	var dir = (Math.random() * 2);
-	//if (dir == <1) {
-	//	this.myDir = -1;
-	//} else {
-	//	this.myDir = 1;
-	//}
-	if (road <= 5) {
-		this.posX = roads[road];
+	if (dir <= 1) {
+		this.myDir = -1;
+	} else {
+		this.myDir = 1;
+	}
+	if (this.road <= 5) {
+		this.posX = roads[this.road];
 		this.posY = Math.floor(Math.random() * 801);
 	} else {
-		this.posY = roads[road];
+		this.posY = roads[this.road];
 		this.posX = Math.floor(Math.random() * 1601);
 	}
 
@@ -73,18 +75,56 @@ function Human(game, zomb, cop) {
 Human.prototype = new Entity();
 Human.prototype.constructor = Human;
 
+Human.prototype.collide = function (other) {
+ //   return distance(this, other) < this.radius + other.radius;
+	return (this.posX <= other.posX && (this.posX + 32) >= other.posX 
+			&& this.posY <= other.posY && (this.posY + 32) >= other.posY)
+			|| (other.posX <= this.posX && (other.posX + 32) >= this.posX 
+			&& other.posY <= this.posY && (other.posY + 32) >= this.posY);
+};
+
 Human.prototype.update = function () {
-	
+	for (var i = 0; i < this.game.entities.length; i++) {
+        var ent = this.game.entities[i];
+        if (!(this.isDead) && ent !== this && this.collide(ent)) {
+			if (this.isZombie && ent.isHuman) {
+				ent.isZombie = true;
+			} else if (this.isCop && ent.isZombie) {
+				ent.isDead = true;
+			}
+		}
+	}
+	//for (var i = 0; i < this.game.entities.length; i++) {
+       // var ent = this.game.entities[i];
+	if (this.road <= 5) {
+		this.posY += this.myDir;
+	} else {
+		this.posX += this.myDir;
+	}
+	if (this.posX >= 1600) {
+		this.posX = 1;
+	}
+	if (this.posY >= 800) {
+		this.posY = 1;
+	}
+	if (this.posX <= 0) {
+		this.posX = 1600;
+	}
+	if (this.posY <= 0) {
+		this.posY = 800;
+	}
 }
 Human.prototype.draw = function () {
-	if (this.isCop) {
-		this.animationCop.drawFrame(this.game.clockTick, this.ctx, this.posX, this.posY);
-	} else if (this.isZombie) {
-		this.animationZomb.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
-	} else {
-		this.animationHuman.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
+	if (!(this.isDead)) {
+		if (this.isCop) {
+			this.animationCop.drawFrame(this.game.clockTick, this.ctx, this.posX, this.posY);
+		} else if (this.isZombie) {
+			this.animationZomb.drawFrame(this.game.clockTick, this.ctx, this.posX, this.posY);
+		} else if (this.isHuman) {
+			this.animationHuman.drawFrame(this.game.clockTick, this.ctx, this.posX, this.posY);
+		}
+		Entity.prototype.draw.call(this);
 	}
-    Entity.prototype.draw.call(this);
 }
 /*function distance(a, b) {
     var dx = a.x - b.x;
@@ -282,14 +322,14 @@ ASSET_MANAGER.downloadAll(function () {
     gameEngine.start();
 	gameEngine.addEntity(new Background(gameEngine, ASSET_MANAGER.getAsset("./img/map.png")));
 	for(var i = 0; i < 16; i++) {
-		var human = new Human(gameEngine, false, false);
+		var human = new Human(gameEngine, false, false, true);
 		gameEngine.addEntity(human);
 	}
 	for(var i = 0; i < 4; i++) {
-		var zomb = new Human(gameEngine, true, false);
+		var zomb = new Human(gameEngine, true, false, false);
 		gameEngine.addEntity(zomb);
 	}
-	var cop = new Human(gameEngine, false, true);
+	var cop = new Human(gameEngine, false, true, false);
 	gameEngine.addEntity(cop);
     //var circle = new Circle(gameEngine);
     //circle.setIt();
