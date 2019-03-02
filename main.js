@@ -126,12 +126,82 @@ Human.prototype.update = function () {
 		for (i = 0; i < this.game.entities.length; i++) {
 			ent = this.game.entities[i];
 			if ((ent.isHuman)) {
-				if (newRoadX >= 0 && ent.posX === this.posX && Math.abs(this.posY - ent.posY) < Math.abs(dist)) {
-					dist = ent.posY - this.posY;
+				let disX = this.posX - ent.posX;
+				if (disX > 800) {
+					disX = disX - 1600;
+				} else if (disX < -800) {
+					disX = 1600 + disX;
+				}
+				let disY = this.posY - ent.posY;
+				if (disY > 400) {
+					disY = disY - 800;
+				} else if (disY < -400) {
+					disY = 800 + disY;
+				}
+				if (newRoadX >= 0 && ent.posX === this.posX && Math.abs(disY) < Math.abs(dist)) {
+					dist = disY * -1;
 					this.road = newRoadX;
 					changeDir = 1;
-				} else if (newRoadY >= 0 && ent.posY === this.posY && Math.abs(this.posX - ent.posX) < Math.abs(dist)) {
-					dist = ent.posX - this.posX;
+				} else if (newRoadY >= 0 && ent.posY === this.posY && Math.abs(disX) < Math.abs(dist)) {
+					dist = disX * -1;
+					this.road = newRoadY;
+					changeDir = 1;
+				}
+			}
+		}
+		
+	}
+		if (this.isCop) {
+		for (i = 0; i < this.game.entities.length; i++) {
+			ent = this.game.entities[i];
+			if ((ent.isZombie)) {
+				let disX = this.posX - ent.posX;
+				if (disX > 800) {
+					disX = disX - 1600;
+				} else if (disX < -800) {
+					disX = 1600 + disX;
+				}
+				let disY = this.posY - ent.posY;
+				if (disY > 400) {
+					disY = disY - 800;
+				} else if (disY < -400) {
+					disY = 800 + disY;
+				}
+				if (newRoadX >= 0 && ent.posX === this.posX && Math.abs(disY) < Math.abs(dist)) {
+					dist = disY * -1;
+					this.road = newRoadX;
+					changeDir = 1;
+				} else if (newRoadY >= 0 && ent.posY === this.posY && Math.abs(disX) < Math.abs(dist)) {
+					dist = disX * -1;
+					this.road = newRoadY;
+					changeDir = 1;
+				}
+			}
+		}
+		
+	}
+	if (this.isHuman) {
+		for (i = 0; i < this.game.entities.length; i++) {
+			ent = this.game.entities[i];
+			if ((ent.isZombie)) {
+				let disX = this.posX - ent.posX;
+				if (disX > 800) {
+					disX = disX - 1600;
+				} else if (disX < -800) {
+					disX = 1600 + disX;
+				}
+				let disY = this.posY - ent.posY;
+				if (disY > 400) {
+					disY = disY - 800;
+				} else if (disY < -400) {
+					disY = 800 + disY;
+				}
+				if (newRoadX >= 0 && ent.posX === this.posX && Math.abs(disY) < Math.abs(dist)) {
+					dist = disY;
+					this.road = newRoadX;
+					changeDir = 1;
+				} else if (newRoadY >= 0 && ent.posY === this.posY && Math.abs(disX) < Math.abs(dist)) {
+					dist = disX;
 					this.road = newRoadY;
 					changeDir = 1;
 				}
