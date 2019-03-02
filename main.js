@@ -151,7 +151,7 @@ Human.prototype.update = function () {
 		}
 		
 	}
-		if (this.isCop) {
+	if (this.isCop) {
 		for (i = 0; i < this.game.entities.length; i++) {
 			ent = this.game.entities[i];
 			if ((ent.isZombie)) {
