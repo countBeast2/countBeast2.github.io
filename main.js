@@ -45,9 +45,18 @@ Animation.prototype.isDone = function () {
 
 
 function Human(game, zomb, cop, human) {
-    this.animationHuman = new Animation(ASSET_MANAGER.getAsset("./img/h.png"), 32, 32, 32, 1, 1, true, 1);
-	this.animationZomb = new Animation(ASSET_MANAGER.getAsset("./img/z.png"), 32, 32, 32, 1, 1, true, 1);
-	this.animationCop = new Animation(ASSET_MANAGER.getAsset("./img/c.png"), 32, 32, 32, 1, 1, true, 1);
+    this.animationHumanD = new Animation(ASSET_MANAGER.getAsset("./img/hd.png"), 32, 32, 32, 1, 1, true, 1);
+	this.animationZombD = new Animation(ASSET_MANAGER.getAsset("./img/zd.png"), 32, 32, 32, 1, 1, true, 1);
+	this.animationCopD = new Animation(ASSET_MANAGER.getAsset("./img/cd.png"), 32, 32, 32, 1, 1, true, 1);
+	this.animationHumanR = new Animation(ASSET_MANAGER.getAsset("./img/hr.png"), 32, 32, 32, 1, 1, true, 1);
+	this.animationZombR = new Animation(ASSET_MANAGER.getAsset("./img/zr.png"), 32, 32, 32, 1, 1, true, 1);
+	this.animationCopR = new Animation(ASSET_MANAGER.getAsset("./img/cr.png"), 32, 32, 32, 1, 1, true, 1);
+	this.animationHumanU = new Animation(ASSET_MANAGER.getAsset("./img/hu.png"), 32, 32, 32, 1, 1, true, 1);
+	this.animationZombU = new Animation(ASSET_MANAGER.getAsset("./img/zu.png"), 32, 32, 32, 1, 1, true, 1);
+	this.animationCopU = new Animation(ASSET_MANAGER.getAsset("./img/cu.png"), 32, 32, 32, 1, 1, true, 1);
+	this.animationHumanL = new Animation(ASSET_MANAGER.getAsset("./img/hl.png"), 32, 32, 32, 1, 1, true, 1);
+	this.animationZombL = new Animation(ASSET_MANAGER.getAsset("./img/zl.png"), 32, 32, 32, 1, 1, true, 1);
+	this.animationCopL = new Animation(ASSET_MANAGER.getAsset("./img/cl.png"), 32, 32, 32, 1, 1, true, 1);
 	this.isZombie = zomb;
 	this.isCop = cop;
 	this.isHuman = human
@@ -89,8 +98,10 @@ Human.prototype.update = function () {
         if (!(this.isDead) && ent !== this && this.collide(ent)) {
 			if (this.isZombie && ent.isHuman) {
 				ent.isZombie = true;
+				ent.isHuman = false;
 			} else if (this.isCop && ent.isZombie) {
 				ent.isDead = true;
+				ent.isZombie = false;
 			}
 		}
 	}
@@ -142,7 +153,8 @@ Human.prototype.update = function () {
 					dist = disY * -1;
 					this.road = newRoadX;
 					changeDir = 1;
-				} else if (newRoadY >= 0 && ent.posY === this.posY && Math.abs(disX) < Math.abs(dist)) {
+				}
+				if (newRoadY >= 0 && ent.posY === this.posY && Math.abs(disX) < Math.abs(dist)) {
 					dist = disX * -1;
 					this.road = newRoadY;
 					changeDir = 1;
@@ -154,7 +166,7 @@ Human.prototype.update = function () {
 	if (this.isCop) {
 		for (i = 0; i < this.game.entities.length; i++) {
 			ent = this.game.entities[i];
-			if ((ent.isZombie)) {
+			if (ent.isZombie) {
 				let disX = this.posX - ent.posX;
 				if (disX > 800) {
 					disX = disX - 1600;
@@ -198,11 +210,11 @@ Human.prototype.update = function () {
 				}
 				if (newRoadX >= 0 && ent.posX === this.posX && Math.abs(disY) < Math.abs(dist)) {
 					dist = disY;
-					this.road = newRoadX;
+					//this.road = newRoadX;
 					changeDir = 1;
 				} else if (newRoadY >= 0 && ent.posY === this.posY && Math.abs(disX) < Math.abs(dist)) {
 					dist = disX;
-					this.road = newRoadY;
+					//this.road = newRoadY;
 					changeDir = 1;
 				}
 			}
@@ -235,11 +247,47 @@ Human.prototype.update = function () {
 Human.prototype.draw = function () {
 	if (!(this.isDead)) {
 		if (this.isCop) {
-			this.animationCop.drawFrame(this.game.clockTick, this.ctx, this.posX, this.posY);
+			if (this.road <= 5) {
+				if (this.myDir > 0) {
+					this.animationCopD.drawFrame(this.game.clockTick, this.ctx, this.posX, this.posY);
+				} else {
+					this.animationCopU.drawFrame(this.game.clockTick, this.ctx, this.posX, this.posY);
+				}
+			} else {
+				if (this.myDir > 0) {
+					this.animationCopR.drawFrame(this.game.clockTick, this.ctx, this.posX, this.posY);
+				} else {
+					this.animationCopL.drawFrame(this.game.clockTick, this.ctx, this.posX, this.posY);
+				}
+			}
 		} else if (this.isZombie) {
-			this.animationZomb.drawFrame(this.game.clockTick, this.ctx, this.posX, this.posY);
+			if (this.road <= 5) {
+				if (this.myDir > 0) {
+					this.animationZombD.drawFrame(this.game.clockTick, this.ctx, this.posX, this.posY);
+				} else {
+					this.animationZombU.drawFrame(this.game.clockTick, this.ctx, this.posX, this.posY);
+				}
+			} else {
+				if (this.myDir > 0) {
+					this.animationZombR.drawFrame(this.game.clockTick, this.ctx, this.posX, this.posY);
+				} else {
+					this.animationZombL.drawFrame(this.game.clockTick, this.ctx, this.posX, this.posY);
+				}
+			}
 		} else if (this.isHuman) {
-			this.animationHuman.drawFrame(this.game.clockTick, this.ctx, this.posX, this.posY);
+			if (this.road <= 5) {
+				if (this.myDir > 0) {
+					this.animationHumanD.drawFrame(this.game.clockTick, this.ctx, this.posX, this.posY);
+				} else {
+					this.animationHumanU.drawFrame(this.game.clockTick, this.ctx, this.posX, this.posY);
+				}
+			} else {
+				if (this.myDir > 0) {
+					this.animationHumanR.drawFrame(this.game.clockTick, this.ctx, this.posX, this.posY);
+				} else {
+					this.animationHumanL.drawFrame(this.game.clockTick, this.ctx, this.posX, this.posY);
+				}
+			}
 		}
 		Entity.prototype.draw.call(this);
 	}
@@ -264,9 +312,18 @@ Background.prototype.update = function () {
 var ASSET_MANAGER = new AssetManager();
 
 ASSET_MANAGER.queueDownload("./img/map.png");
-ASSET_MANAGER.queueDownload("./img/h.png");
-ASSET_MANAGER.queueDownload("./img/z.png");
-ASSET_MANAGER.queueDownload("./img/c.png");
+ASSET_MANAGER.queueDownload("./img/hd.png");
+ASSET_MANAGER.queueDownload("./img/zd.png");
+ASSET_MANAGER.queueDownload("./img/cd.png");
+ASSET_MANAGER.queueDownload("./img/hl.png");
+ASSET_MANAGER.queueDownload("./img/zl.png");
+ASSET_MANAGER.queueDownload("./img/cl.png");
+ASSET_MANAGER.queueDownload("./img/hr.png");
+ASSET_MANAGER.queueDownload("./img/zr.png");
+ASSET_MANAGER.queueDownload("./img/cr.png");
+ASSET_MANAGER.queueDownload("./img/hu.png");
+ASSET_MANAGER.queueDownload("./img/zu.png");
+ASSET_MANAGER.queueDownload("./img/cu.png");
 
 ASSET_MANAGER.downloadAll(function () {
     var canvas = document.getElementById('gameWorld');
