@@ -1,4 +1,5 @@
 var roads = [115, 400, 638, 945, 1145, 1361, 128, 244, 436, 550, 715];
+var gameEngine;
 
 function Animation(spriteSheet, frameWidth, frameHeight, sheetWidth, frameDuration, frames, loop, scale) {
     this.spriteSheet = spriteSheet;
@@ -325,12 +326,79 @@ ASSET_MANAGER.queueDownload("./img/hu.png");
 ASSET_MANAGER.queueDownload("./img/zu.png");
 ASSET_MANAGER.queueDownload("./img/cu.png");
 
+window.onload = function () {
+  var socket = io.connect("http://24.16.255.56:8888");
+
+  socket.on("load", function (data) {
+      console.log(data);
+  });
+
+  var text = document.getElementById("text");
+  var saveButton = document.getElementById("save");
+  var loadButton = document.getElementById("load");
+
+  saveButton.onclick = function () {
+    console.log("save");
+    text.innerHTML = "Saved."
+	var info = [];
+	for (var i = 0; i < gameEngine.entities.length; i++) {
+		let ent = gameEngine.entities[i];
+		if (ent.isCop || ent.isHuman || ent.isZombie) {
+			info.push([ent.isCop, ent.isHuman, ent.isZombie, ent.isDead, ent.road, ent.posX, ent.posY, ent.myDir]);			
+		}
+	}
+    socket.emit("save", { studentname: "Trenton Greevebiester", statename: "apocalypse", data: info });
+  };
+
+  loadButton.onclick = function () {
+    console.log("load");
+    text.innerHTML = "Loaded."
+    socket.emit("load", { studentname: "Trenton Greevebiester", statename: "apocalypse"});
+	
+	socket.on("load", (data) => {
+		console.log(data.data)
+		
+		var canvas = document.getElementById('gameWorld');
+		var ctx = canvas.getContext('2d');
+		gameEngine = new GameEngine();
+		gameEngine.init(ctx);
+		gameEngine.start();
+		gameEngine.addEntity(new Background(gameEngine, ASSET_MANAGER.getAsset("./img/map.png")));
+		for(var i = 0; i < data.data.length; i++) {
+			var check = true;
+			for (var j = 0; j < data.data[i].length; j++) {
+				if(data.data[i][j] == null) {
+					check = false;
+				}					
+			}
+			if (check) {
+				var human = new Human(gameEngine, false, false, true);
+				human.isCop = data.data[i][0];
+				human.isHuman = data.data[i][1];
+				human.isZombie = data.data[i][2];
+				human.isDead = data.data[i][3];
+				human.road = data.data[i][4];
+				human.posX = data.data[i][5];
+				human.posY = data.data[i][6];
+				human.myDir = data.data[i][7];
+
+				gameEngine.addEntity(human);
+			}
+		}
+		
+	});
+
+
+  };
+
+};
+
 ASSET_MANAGER.downloadAll(function () {
     var canvas = document.getElementById('gameWorld');
     var ctx = canvas.getContext('2d');
 
 
-    var gameEngine = new GameEngine();
+    gameEngine = new GameEngine();
 	gameEngine.init(ctx);
     gameEngine.start();
 	gameEngine.addEntity(new Background(gameEngine, ASSET_MANAGER.getAsset("./img/map.png")));
